@@ -1,9 +1,9 @@
 import Searchbar from "./Searchbar";
-import SuggestionItem from "./SuggestionItem";
-import ListItem from "./ListItem";
+import RecommandedApp from "./RecommandedApp";
+import TopApp from "./TopApp";
 
 export {
   Searchbar,
-  SuggestionItem,
-  ListItem
+  RecommandedApp,
+  TopApp
 };

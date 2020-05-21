@@ -4,8 +4,8 @@ import './App.css';
 
 import {
   Searchbar,
-  SuggestionItem,
-  ListItem
+  RecommandedApp,
+  TopApp
 } from './components';
 
 function App() {
@@ -13,10 +13,10 @@ function App() {
     <div className="App">
       <Searchbar></Searchbar>
       <div>
-        <SuggestionItem></SuggestionItem>
+        <RecommandedApp></RecommandedApp>
       </div>
       <div>
-        <ListItem></ListItem>
+        <TopApp></TopApp>
       </div>
     </div>
   );
