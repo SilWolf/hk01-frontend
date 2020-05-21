@@ -1,17 +1,20 @@
 import {
-  ADD_TOP_APP
-} from '../actions/TopApps.action';
+  ADD_TOP_APP,
+  ADD_TOP_APPS
+} from '../actions/topApps.action';
 
-const TopApps = (state = [], action) => {
+const topApps = (state = [], action) => {
   switch (action.type) {
     case ADD_TOP_APP:
       return [
         ...state,
-        {
-          id: action.id,
-          text: action.text,
-          isVisible: true
-        }
+        action.topApp
+      ];
+
+    case ADD_TOP_APPS:
+      return [
+        ...state,
+        ...action.topApps
       ];
 
     default:
@@ -19,4 +22,4 @@ const TopApps = (state = [], action) => {
   }
 }
 
-export default TopApps;
+export default topApps;

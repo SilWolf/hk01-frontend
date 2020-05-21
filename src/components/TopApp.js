@@ -20,18 +20,18 @@ const TopAppRating = styled.div`
   text-align: left;
 `;
 
-function TopApp() {
+function TopApp({ index, title, caption, image, ...others }) {
   return (
     <Grid container spacing={2} alignItems="center">
       <Grid item>
-        <TopAppIndex>1</TopAppIndex>
+        <TopAppIndex>{index}</TopAppIndex>
       </Grid>
       <Grid item>
-        <TopAppAvatar></TopAppAvatar>
+        <TopAppAvatar src={image}></TopAppAvatar>
       </Grid>
       <Grid item xs>
-        <TopAppTitle>Title</TopAppTitle>
-        <TopAppCaption>Caption</TopAppCaption>
+        <TopAppTitle>{title}</TopAppTitle>
+        <TopAppCaption>{caption}</TopAppCaption>
         <TopAppRating>Rating</TopAppRating>
       </Grid>
     </Grid>

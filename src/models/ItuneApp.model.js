@@ -1,13 +1,13 @@
 class Model_ItuneApp {
   constructor() {
-    this.name = '';
-    this.image = { url: '' };
-    this.summary = '';
-    this.category = '';
+    this.name = null;
+    this.image = { url: null };
+    this.summary = null;
+    this.category = null;
   }
 
   fromJson(json) {
-    if (!json && json.constructor === Object) { // only operate when json is an object
+    if (json && json.constructor === Object) { // only operate when json is an object
       if (json['title']
         && json['title'].constructor === Object
         && json['title']['label']) { // parse name from json
@@ -16,9 +16,9 @@ class Model_ItuneApp {
 
       if (json['im:image']
         && json['im:image'].constructor === Array
-        && json['im.image'].length > 0) { // parse array of images from json
+        && json['im:image'].length > 0) { // parse array of images from json
         let _images = json['im:image'];
-        let _image = _images[_images.length]; // Get last image from array;
+        let _image = _images[_images.length - 1]; // Get last image from array;
         this.image = {
           url: _image.label
         }

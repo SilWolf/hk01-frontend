@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
 
-import TopApps from './TopApps.reducer';
+import topApps from './topApps.reducer';
 
 export default combineReducers({
-  TopApps
+  topApps
 });
