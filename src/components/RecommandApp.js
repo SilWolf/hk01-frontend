@@ -28,14 +28,13 @@ const RecommandedAppCaption = styled.div`
   text-align: left;
 `;
 
-function RecommandedApp() {
+function RecommandedApp({ title, caption, image, ...others }) {
   return (
     <RecommandedAppWrapper>
-      <RecommandedAppAvatar variant="rounded">
-        N
+      <RecommandedAppAvatar variant="rounded" src={image}>
       </RecommandedAppAvatar>
-      <RecommandedAppTitle>Title</RecommandedAppTitle>
-      <RecommandedAppCaption>Caption</RecommandedAppCaption>
+      <RecommandedAppTitle>{title}</RecommandedAppTitle>
+      <RecommandedAppCaption>{caption}</RecommandedAppCaption>
     </RecommandedAppWrapper>
   );
 }

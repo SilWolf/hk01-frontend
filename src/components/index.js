@@ -1,9 +1,9 @@
 import Searchbar from "./Searchbar";
-import RecommandedApp from "./RecommandedApp";
+import RecommandApp from "./RecommandApp";
 import TopApp from "./TopApp";
 
 export {
   Searchbar,
-  RecommandedApp,
+  RecommandApp,
   TopApp
 };

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { addRecommandApps } from './actions/recommandApps.action';
 import { addTopApps } from './actions/topApps.action';
 
 import store from './store';
@@ -9,16 +10,26 @@ import './App.css';
 
 import {
   Searchbar,
-  RecommandedApp,
+  RecommandApp,
   TopApp
 } from './components';
 import axios from 'axios';
 
 function App() {
+  const recommandApps = useSelector(state => state.recommandApps);
   const topApps = useSelector(state => state.topApps);
 
   useEffect(() => { // onComponentMount
-    // Get list of top app and store
+    // Get list of top apps and store it
+    axios.get('https://itunes.apple.com/hk/rss/topgrossingapplications/limit=10/json').then((response) => {
+      let entries = response.data.feed.entry;
+      let recommandApps = entries.map((json) => {
+        return new Model_ItuneApp().fromJson(json);
+      });
+      store.dispatch(addRecommandApps(recommandApps));
+    });
+
+    // Get list of top app and store it
     axios.get('https://itunes.apple.com/hk/rss/topfreeapplications/limit=10/json').then((response) => {
       let entries = response.data.feed.entry;
       let topApps = entries.map((json) => {
@@ -32,7 +43,17 @@ function App() {
     <div className="App">
       <Searchbar></Searchbar>
       <div>
-        <RecommandedApp></RecommandedApp>
+        {
+          recommandApps.map((recommandApp, index) => 
+            <RecommandApp
+              key={index}
+              index={index+1}
+              title={recommandApp.name}
+              caption={recommandApp.category}
+              image={recommandApp.image.url}
+            ></RecommandApp>
+          )
+        }
       </div>
       <div>
         {
