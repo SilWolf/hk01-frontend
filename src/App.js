@@ -29,10 +29,23 @@ const RecommandAppList = styled.div`
 `;
 
 const RecommandAppWrapper = styled.div`
-  flex: 1 0 20vw;
-  width: 20vw;
+  flex: 1 0 22vw;
+  width: 22vw;
+  padding-left: 10px;
+
+  &:last-child {
+    padding-right: 10px;
+  }
+`;
+
+const TopAppList = styled.div`
   margin-left: 10px;
   margin-right: 10px;
+`;
+
+const TopAppWrapper = styled.div`
+  margin-top: 10px;
+  margin-bottom: 10px;
 `;
 
 function App() {
@@ -65,9 +78,10 @@ function App() {
       <RecommandAppList>
         {
           recommandApps.map((recommandApp, index) => 
-            <RecommandAppWrapper>
+            <RecommandAppWrapper
+              key={index}
+            >
               <RecommandApp
-                key={index}
                 index={index+1}
                 title={recommandApp.name}
                 caption={recommandApp.category}
@@ -77,19 +91,23 @@ function App() {
           )
         }
       </RecommandAppList>
-      <div>
+      <TopAppList>
         {
           topApps.map((topApp, index) => 
-            <TopApp
+            <TopAppWrapper
               key={index}
-              index={index+1}
-              title={topApp.name}
-              caption={topApp.category}
-              image={topApp.image.url}
-            ></TopApp>
+            >
+              <TopApp
+                index={index+1}
+                title={topApp.name}
+                caption={topApp.category}
+                image={topApp.image.url}
+                variant={ index % 2 === 0 ? 'rounded' : 'circle' }
+              ></TopApp>
+            </TopAppWrapper>
           )
         }
-      </div>
+      </TopAppList>
     </div>
   );
 }

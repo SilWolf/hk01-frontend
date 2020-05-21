@@ -9,8 +9,6 @@ const RecommandAppGrid = styled.div`
   justify-content: flex-start;
   align-items: stretch;
   width: 100%;
-  
-  font-size: 0.5rem;
 `;
 
 const RecommandAppAvatar = styled(Avatar)`
@@ -19,14 +17,16 @@ const RecommandAppAvatar = styled(Avatar)`
   &.MuiAvatar-root {
     width: 100%;
     height: 100%;
+    border-radius: 26.8%;
+    border: 1px solid #E7E7E7;
   }
 `
 
 const RecommandAppTitle = styled.div`
   text-align: left;
   max-width: 100%;
-  height: 4em;
-  line-height: 2em;
+  height: 2.8em;
+  line-height: 1.4em;
   text-overflow: ellipsis;
   overflow: hidden;
 `;
