@@ -13,7 +13,27 @@ import {
   RecommandApp,
   TopApp
 } from './components';
+
+import styled from 'styled-components';
 import axios from 'axios';
+
+const RecommandAppList = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  overflow-x: scroll;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+`;
+
+const RecommandAppWrapper = styled.div`
+  flex: 1 0 20vw;
+  width: 20vw;
+  margin-left: 10px;
+  margin-right: 10px;
+`;
 
 function App() {
   const recommandApps = useSelector(state => state.recommandApps);
@@ -42,19 +62,21 @@ function App() {
   return (
     <div className="App">
       <Searchbar></Searchbar>
-      <div>
+      <RecommandAppList>
         {
           recommandApps.map((recommandApp, index) => 
-            <RecommandApp
-              key={index}
-              index={index+1}
-              title={recommandApp.name}
-              caption={recommandApp.category}
-              image={recommandApp.image.url}
-            ></RecommandApp>
+            <RecommandAppWrapper>
+              <RecommandApp
+                key={index}
+                index={index+1}
+                title={recommandApp.name}
+                caption={recommandApp.category}
+                image={recommandApp.image.url}
+              ></RecommandApp>
+            </RecommandAppWrapper>
           )
         }
-      </div>
+      </RecommandAppList>
       <div>
         {
           topApps.map((topApp, index) => 

@@ -3,15 +3,17 @@ import styled from 'styled-components';
 
 import Avatar from '@material-ui/core/Avatar';
 
-const RecommandedAppWrapper = styled.div`
+const RecommandAppGrid = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   align-items: stretch;
   width: 100%;
+  
+  font-size: 0.5rem;
 `;
 
-const RecommandedAppAvatar = styled(Avatar)`
+const RecommandAppAvatar = styled(Avatar)`
   margin-bottom: 0.5em;
 
   &.MuiAvatar-root {
@@ -20,23 +22,28 @@ const RecommandedAppAvatar = styled(Avatar)`
   }
 `
 
-const RecommandedAppTitle = styled.div`
+const RecommandAppTitle = styled.div`
+  text-align: left;
+  max-width: 100%;
+  height: 4em;
+  line-height: 2em;
+  text-overflow: ellipsis;
+  overflow: hidden;
+`;
+
+const RecommandAppCaption = styled.div`
   text-align: left;
 `;
 
-const RecommandedAppCaption = styled.div`
-  text-align: left;
-`;
-
-function RecommandedApp({ title, caption, image, ...others }) {
+function RecommandApp({ title, caption, image, ...others }) {
   return (
-    <RecommandedAppWrapper>
-      <RecommandedAppAvatar variant="rounded" src={image}>
-      </RecommandedAppAvatar>
-      <RecommandedAppTitle>{title}</RecommandedAppTitle>
-      <RecommandedAppCaption>{caption}</RecommandedAppCaption>
-    </RecommandedAppWrapper>
+    <RecommandAppGrid>
+      <RecommandAppAvatar variant="rounded" src={image}>
+      </RecommandAppAvatar>
+      <RecommandAppTitle>{title}</RecommandAppTitle>
+      <RecommandAppCaption>{caption}</RecommandAppCaption>
+    </RecommandAppGrid>
   );
 }
 
-export default RecommandedApp;
+export default RecommandApp;
