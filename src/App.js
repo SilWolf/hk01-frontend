@@ -17,6 +17,19 @@ import {
 import styled from 'styled-components';
 import axios from 'axios';
 
+const TopToolbar = styled.div`
+  padding: 5px 10px;
+  background: #F8F8F9;
+  box-shadow: 0 2px 2px #E3E4E5
+`;
+
+const RecommandAppListHeader = styled.div`
+  font-size: 1.5em;
+  font-weight: bold;
+  padding-left: 10px;
+  margin-top: 1em;
+`;
+
 const RecommandAppList = styled.div`
   display: flex;
   justify-content: flex-start;
@@ -24,7 +37,6 @@ const RecommandAppList = styled.div`
   overflow-x: scroll;
   padding-top: 10px;
   padding-bottom: 10px;
-  margin-top: 10px;
   margin-bottom: 10px;
 `;
 
@@ -74,7 +86,11 @@ function App() {
 
   return (
     <div className="App">
-      <Searchbar></Searchbar>
+      <TopToolbar>
+        <Searchbar></Searchbar>
+      </TopToolbar>
+
+      <RecommandAppListHeader>推介</RecommandAppListHeader>
       <RecommandAppList>
         {
           recommandApps.map((recommandApp, index) => 
@@ -91,6 +107,7 @@ function App() {
           )
         }
       </RecommandAppList>
+
       <TopAppList>
         {
           topApps.map((topApp, index) => 
