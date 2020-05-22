@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import InputBase from '@material-ui/core/InputBase';
 
@@ -37,15 +37,45 @@ const SearchbarInput = styled(InputBase)`
   }
 `;
 
-function Searchbar() {
+function Searchbar({ onChange, onFocus, onBlur, ...others }) {
+  const [ isFocusing, setIsFocusing ] = useState(false);
+  const [ text, setText ] = useState(null);
+
+  function handleOnFocus(event) {
+    setIsFocusing(true);
+    if (onFocus) {
+      onFocus(event);
+    }
+  }
+
+  function handleOnChange(event) {
+    setText(event.target.value);
+    if (onChange) {
+      onChange(event);
+    }
+  }
+
+  function handleOnBlur(event) {
+    setIsFocusing(false);
+    if (onBlur) {
+      onBlur(event);
+    }
+  }
+
   return (
     <div>
       <SearchbarInputWrapper>
-        <SearchbarPlaceholder>
-          <SearchIcon />
-          <div>搜尋</div>
-        </SearchbarPlaceholder>
+        {
+          !isFocusing && !text &&
+          <SearchbarPlaceholder>
+            <SearchIcon />
+            <div>搜尋</div>
+          </SearchbarPlaceholder>
+        }
         <SearchbarInput
+          onFocus={handleOnFocus}
+          onChange={handleOnChange}
+          onBlur={handleOnBlur}
         ></SearchbarInput>
       </SearchbarInputWrapper>
     </div>

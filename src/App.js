@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { addRecommandApps } from './actions/recommandApps.action';
-import { addTopApps } from './actions/topApps.action';
 
 import store from './store';
+import { addTopApps } from './actions/topApps.action';
+import { setSearchText, setSearchResults, clearSearch } from './actions/search.action';
+
 import Model_ItuneApp from './models/ItuneApp.model';
 
 import ButtonBase from '@material-ui/core/ButtonBase'
@@ -64,6 +66,7 @@ const TopAppWrapper = styled(ButtonBase)`
 function App() {
   const recommandApps = useSelector(state => state.recommandApps);
   const topApps = useSelector(state => state.topApps);
+  const search = useSelector(state => state.search);
 
   const [scrollBottom, setScrollBottom] = useState(999999);
   const [isLoadingMoreTopApps, setIsLoadingMoreTopApps] = useState(false);
@@ -76,6 +79,19 @@ function App() {
     // console.log(element.scrollHeight, element.scrollTop, element.clientHeight);
 
     setScrollBottom(element.scrollHeight - element.scrollTop - element.clientHeight);
+  }
+
+  function handleSearchbarOnFocus(event) {
+  }
+
+  function handleSearchbarOnChange(event) {
+    store.dispatch(setSearchText(event.target.value));
+  }
+
+  function handleSearchbarOnBlur(event) {
+    if (!search.text) { // if text is empty or null
+      store.dispatch(clearSearch());
+    }
   }
 
   // on mount: load data from APIs
@@ -113,11 +129,23 @@ function App() {
     }
   }, []);
 
+  // on change: search.text
+  useEffect(() => {
+    if (!search.text) {
+      store.dispatch(setSearchResults(null));
+      return;
+    }
+    
+    let trimmedText = search.text.trim();
+    if (trimmedText) {
+      let results = topApps.filter((topApp) => topApp.name.indexOf(trimmedText) !== -1);
+      store.dispatch(setSearchResults(results));
+    }
+  }, [ topApps, search.text ])
+
   // on change: scrollBottom
   useEffect(() => {
-    // console.log(scrollBottom);
     // Load more data if not already loading, has more result, and scroll reaches bottom
-    console.log(`isLoadingMoreTopApps: ${isLoadingMoreTopApps}, hasMoreTopApps: ${hasMoreTopApps}, scrollBottom: ${scrollBottom}`)
     if (!isLoadingMoreTopApps && hasMoreTopApps && scrollBottom < 300) {
       setIsLoadingMoreTopApps(true);
     }
@@ -142,7 +170,11 @@ function App() {
   return (
     <div className="App">
       <TopToolbar>
-        <Searchbar></Searchbar>
+        <Searchbar
+          onFocus={handleSearchbarOnFocus}
+          onChange={handleSearchbarOnChange}
+          onBlur={handleSearchbarOnBlur}
+        ></Searchbar>
       </TopToolbar>
 
       <RecommandAppListHeader>推介</RecommandAppListHeader>
@@ -163,49 +195,76 @@ function App() {
         }
       </RecommandAppList>
 
-      <TopAppList>
-        {
-          topApps.slice(0, topAppsLimit).map((topApp, index) => 
-            <TopAppWrapper
-              key={index}
-            >
-              <TopApp
-                index={index+1}
-                title={topApp.name}
-                caption={topApp.category}
-                image={topApp.image.url}
-                variant={ index % 2 === 0 ? 'rounded' : 'circle' }
-              ></TopApp>
-            </TopAppWrapper>
-          )
-        }
-        {
-          hasMoreTopApps && (
-            <div>
-              <TopAppWrapper>
-                <TopApp
-                  loading={true}
-                  variant="rounded"
-                ></TopApp>
-              </TopAppWrapper>
-              <TopAppWrapper>
-                <TopApp
-                  loading={true}
-                  variant="circle"
-                ></TopApp>
-              </TopAppWrapper>
-              <TopAppWrapper>
-                <TopApp
-                  loading={true}
-                  variant="rounded"
-                ></TopApp>
-              </TopAppWrapper>
-            </div>
-          )
-        }
-      </TopAppList>
+      {
+        search.results !== null ? renderSearchAppList() : renderTopAppList()
+      }
+
     </div>
   );
+
+  function renderSearchAppList() {
+    return <TopAppList>
+      {
+        search.results.map((searchApp, index) => 
+          <TopAppWrapper
+            key={index}
+          >
+            <TopApp
+              title={searchApp.name}
+              caption={searchApp.category}
+              image={searchApp.image.url}
+              variant={ index % 2 === 0 ? 'rounded' : 'circle' }
+            ></TopApp>
+          </TopAppWrapper>
+        )
+      }
+    </TopAppList>
+  }
+
+  function renderTopAppList() {
+    return <TopAppList>
+      {
+        topApps.slice(0, topAppsLimit).map((topApp, index) => 
+          <TopAppWrapper
+            key={index}
+          >
+            <TopApp
+              index={index+1}
+              title={topApp.name}
+              caption={topApp.category}
+              image={topApp.image.url}
+              variant={ index % 2 === 0 ? 'rounded' : 'circle' }
+            ></TopApp>
+          </TopAppWrapper>
+        )
+      }
+      {
+        hasMoreTopApps && (
+          <div>
+            <TopAppWrapper>
+              <TopApp
+                loading={true}
+                variant="rounded"
+              ></TopApp>
+            </TopAppWrapper>
+            <TopAppWrapper>
+              <TopApp
+                loading={true}
+                variant="circle"
+              ></TopApp>
+            </TopAppWrapper>
+            <TopAppWrapper>
+              <TopApp
+                loading={true}
+                variant="rounded"
+              ></TopApp>
+            </TopAppWrapper>
+          </div>
+        )
+      }
+    </TopAppList>
+  }
+
 }
 
 export default App;

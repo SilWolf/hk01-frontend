@@ -58,7 +58,7 @@ function TopApp({ index, title, caption, image, variant, loading, ...others }) {
       </Grid>
       <Grid item>
         {
-          loading ? (<TopAppAvatarSkeleton variant={variant}></TopAppAvatarSkeleton>) : (<TopAppAvatar variant={variant} src={image}></TopAppAvatar>)
+          loading ? (<TopAppAvatarSkeleton variant={variant === 'circle' ? 'circle' : 'rect'}></TopAppAvatarSkeleton>) : (<TopAppAvatar variant={variant} src={image}></TopAppAvatar>)
         }
         
       </Grid>
