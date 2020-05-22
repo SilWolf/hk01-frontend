@@ -6,6 +6,8 @@ import { addTopApps } from './actions/topApps.action';
 import store from './store';
 import Model_ItuneApp from './models/ItuneApp.model';
 
+import ButtonBase from '@material-ui/core/ButtonBase'
+
 import './App.css';
 
 import {
@@ -40,24 +42,23 @@ const RecommandAppList = styled.div`
   margin-bottom: 10px;
 `;
 
-const RecommandAppWrapper = styled.div`
-  flex: 1 0 22vw;
-  width: 22vw;
-  padding-left: 10px;
-
-  &:last-child {
-    padding-right: 10px;
+const RecommandAppWrapper = styled(ButtonBase)`
+  &.MuiButtonBase-root {
+    flex: 1 0 22vw;
+    width: 22vw;
+    padding: 5px 10px;
   }
 `;
 
 const TopAppList = styled.div`
-  margin-left: 10px;
-  margin-right: 10px;
 `;
 
-const TopAppWrapper = styled.div`
-  margin-top: 10px;
-  margin-bottom: 10px;
+const TopAppWrapper = styled(ButtonBase)`
+  &.MuiButtonBase-root {
+    width: 100%;
+    padding: 10px;
+    border-bottom: 1px solid #E7E7E7;
+  }
 `;
 
 function App() {
