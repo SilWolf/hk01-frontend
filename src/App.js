@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { addRecommandApps } from './actions/recommandApps.action';
 
@@ -68,18 +68,24 @@ function App() {
   const topApps = useSelector(state => state.topApps);
   const search = useSelector(state => state.search);
 
-  const [scrollBottom, setScrollBottom] = useState(999999);
-  const [isLoadingMoreTopApps, setIsLoadingMoreTopApps] = useState(false);
-  const [hasMoreTopApps, setHasMoreTopApps] = useState(true);
-  const [topAppsLimit, setTopAppsLimit] = useState(0);
+  const [topAppsState, setTopAppsState] = useState({
+    isLoading: false,
+    hasMore: false,
+    limit: 0
+  });
 
-  function handleScroll(event) {
+  const handleScroll = useCallback((event) => {
     // Change state of scrollBottom when scrolling
     let element = event.target.scrollingElement;
-    // console.log(element.scrollHeight, element.scrollTop, element.clientHeight);
 
-    setScrollBottom(element.scrollHeight - element.scrollTop - element.clientHeight);
-  }
+    let scrollBottom = element.scrollHeight - element.scrollTop - element.clientHeight;
+    if (topAppsState.hasMore && !topAppsState.isLoading && scrollBottom < 300) {
+      setTopAppsState({
+        ...topAppsState,
+        isLoading: true
+      });
+    }
+  }, [ topAppsState ]);
 
   function handleSearchbarOnFocus(event) {
   }
@@ -96,7 +102,11 @@ function App() {
 
   // on mount: load data from APIs
   useEffect(() => {
-    setHasMoreTopApps(false);
+    setTopAppsState({
+      isLoading: true,
+      hasMore: false,
+      limit: 0
+    });
     // Get list of top apps and store it
     axios.get('https://itunes.apple.com/hk/rss/topgrossingapplications/limit=10/json').then((response) => {
       let entries = response.data.feed.entry;
@@ -113,9 +123,12 @@ function App() {
         return new Model_ItuneApp().fromJson(json);
       });
       store.dispatch(addTopApps(topApps));
-      setHasMoreTopApps(true);
-      setIsLoadingMoreTopApps(false);
-      setScrollBottom(0);
+
+      setTopAppsState({
+        isLoading: false,
+        hasMore: true,
+        limit: 0
+      });
     });
   }, []);
 
@@ -127,7 +140,7 @@ function App() {
     return () => {
       window.removeEventListener('scroll', handleScroll)
     }
-  }, []);
+  }, [ handleScroll ]);
 
   // on change: search.text
   useEffect(() => {
@@ -143,29 +156,27 @@ function App() {
     }
   }, [ topApps, search.text ])
 
-  // on change: scrollBottom
-  useEffect(() => {
-    // Load more data if not already loading, has more result, and scroll reaches bottom
-    if (!isLoadingMoreTopApps && hasMoreTopApps && scrollBottom < 300) {
-      setIsLoadingMoreTopApps(true);
-    }
-  }, [ isLoadingMoreTopApps, hasMoreTopApps, scrollBottom ]);
-
   // on change: isLoadingMoreTopApps
   useEffect(() => {
-    if (isLoadingMoreTopApps === true) {
+    if (topAppsState.isLoading === true) {
       setTimeout(() => {
-        let newTopAppsLimit = Math.min(topApps.length, topAppsLimit + 10);
-        if (newTopAppsLimit === topAppsLimit) { // = no more results
-          setHasMoreTopApps(false);
+        let newTopAppsLimit = Math.min(topApps.length, topAppsState.limit + 10);
+        if (newTopAppsLimit === topAppsState.limit) { // = no more results
+          setTopAppsState({
+            isLoading: false,
+            hasMore: false,
+            limit: topAppsState.limit
+          });
         } else {
-          setTopAppsLimit(newTopAppsLimit);
-          setScrollBottom(999999);
+          setTopAppsState({
+            isLoading: false,
+            hasMore: true,
+            limit: newTopAppsLimit
+          });
         }
-        setIsLoadingMoreTopApps(false);
-      }, 800); // simulate loading delay via network  
+      }, 800); // simulate loading delay via network
     }
-  }, [ topApps.length, topAppsLimit, isLoadingMoreTopApps ]);
+  }, [ topApps.length, topAppsState ]);
 
   return (
     <div className="App">
@@ -224,7 +235,7 @@ function App() {
   function renderTopAppList() {
     return <TopAppList>
       {
-        topApps.slice(0, topAppsLimit).map((topApp, index) => 
+        topApps.slice(0, topAppsState.limit).map((topApp, index) => 
           <TopAppWrapper
             key={index}
           >
@@ -239,7 +250,7 @@ function App() {
         )
       }
       {
-        hasMoreTopApps && (
+        topAppsState.hasMore && (
           <div>
             <TopAppWrapper>
               <TopApp
