@@ -193,7 +193,7 @@ function HomePage() {
   function handleAppWrapperClick(app) {
     if (app.id !== null) {
       store.dispatch(setScrollTop());
-      history.push(`/detail/${app.id}`);
+      history.push(`./detail/${app.id}`);
     }
   }
 

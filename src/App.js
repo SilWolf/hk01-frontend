@@ -37,7 +37,7 @@ function App() {
     });
   }, []);
 
-  return <Router>
+  return <Router basename={'/hk01-codetest/frontend'}>
     <Switch>
       <Route path="/detail/:id">
         <DetailPage />
