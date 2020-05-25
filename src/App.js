@@ -46,7 +46,7 @@ function App() {
         <HomePage />
       </Route>
     </Switch>
-  </Router>;
+  </Router>
 }
 
 export default App;

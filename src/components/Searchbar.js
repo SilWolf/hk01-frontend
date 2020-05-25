@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import styled from 'styled-components';
 import InputBase from '@material-ui/core/InputBase';
 import IconButton from '@material-ui/core/IconButton';
@@ -49,7 +49,7 @@ const SearchbarCancelButton = styled(IconButton)`
   }
 `;
 
-function Searchbar({ onTextChange, onFocus, onBlur, onCancel, ...others }) {
+function Searchbar({ onTextChange, onFocus, onBlur, onCancel, onCancelWhenFocus, onCancelWhenBlur, initialValue, ...others }) {
   const [ isFocusing, setIsFocusing ] = useState(false);
   const [ isCancelling, setIsCancelling ] = useState(false);
   const [ text, setText ] = useState('');
@@ -83,16 +83,30 @@ function Searchbar({ onTextChange, onFocus, onBlur, onCancel, ...others }) {
 
   function handleCancel(event) {
     setText(''); setIsCancelling(true);
-    if (onCancel) {
+    if (onCancelWhenFocus && isFocusing) {
+      onCancelWhenFocus(event, '');
+    } else if (onCancelWhenBlur && !isFocusing) {
+      onCancelWhenBlur(event, '');
+    } else if (onCancel) {
       onCancel(event, '');
     }
+
     if (onTextChange) {
       onTextChange(event, '');
     }
-    setTimeout(() => {
-      searchbarInput.current.children[0].focus();
-    }, 10)
+
+    if (isFocusing) {
+      setTimeout(() => {
+        searchbarInput.current.children[0].focus();
+      }, 10)
+    }
   }
+
+  useEffect(() => {
+    if (initialValue !== null) {
+      setText(initialValue);
+    }
+  }, [ initialValue ]);
 
   return (
     <div>

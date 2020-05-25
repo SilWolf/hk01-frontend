@@ -100,7 +100,7 @@ function DetailPage() {
         <BackButton
           startIcon={<ArrowBackIosIcon />}
           onClick={() => {
-            history.push('/');
+            history.goBack();
           }}
         >
           Back to Home

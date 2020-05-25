@@ -1,13 +1,19 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 import { useDebouncedCallback } from 'use-debounce';
 
 import ButtonBase from '@material-ui/core/ButtonBase'
-
 import FindInPageIcon from '@material-ui/icons/FindInPage';
 
 import './home.page.css';
+
+import store from '../../store';
+import {
+  setTopAppsState,
+  setSearchState,
+  setScrollTop
+} from '../../actions/homePageState.action'
 
 import {
   Searchbar,
@@ -68,6 +74,20 @@ const TopAppWrapper = styled(ButtonBase)`
   }
 `;
 
+const SearchPanel = styled.div`
+  position: fixed;
+  background: #FFFFFF;
+  height: 100vh;
+  width: 100vw;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow-y: scroll;
+  z-index: ${props => props.active ? 10 : -1};
+  padding: 50px 10px 10px 10px;
+`
+
 const SearchNoResult = styled.div`
   text-align: center;
   color: #E4E5E6;
@@ -80,22 +100,11 @@ const SearchNoResult = styled.div`
 
 function HomePage() {
   const history = useHistory();
+  const topAppsState = useSelector(state => state.homePageState.topAppsState);
+  const searchState = useSelector(state => state.homePageState.searchState);
   const recommandApps = useSelector(state => state.recommandApps);
   const topApps = useSelector(state => state.topApps);
 
-  const [topAppsState, setTopAppsState] = useState({
-    isLoading: false,
-    hasMore: false,
-    limit: 0
-  });
-
-  const [searchState, setSearchState] = useState({
-    text: '',
-    isActive: false,
-    isLoading: false,
-    results: [],
-    showEmpty: false
-  });
 
   const handleScroll = useCallback((event) => {
     // Change state of scrollBottom when scrolling
@@ -103,27 +112,33 @@ function HomePage() {
 
     let scrollBottom = element.scrollHeight - element.scrollTop - element.clientHeight;
     if (topAppsState.hasMore && !topAppsState.isLoading && scrollBottom < 300) {
-      setTopAppsState({
-        ...topAppsState,
-        isLoading: true
-      });
+      store.dispatch(
+        setTopAppsState({
+          ...topAppsState,
+          isLoading: true
+        })
+      );
     }
   }, [ topAppsState ]);
 
   function handleSearchbarOnFocus(event, text) {
-    setSearchState({
-      ...searchState,
-      isActive: true
-    });
+    store.dispatch(
+      setSearchState({
+        ...searchState,
+        isActive: true
+      })
+    );
   }
 
   const [ handleSearchbarOnTextChange ] = useDebouncedCallback((event, text) => {
     if (text === '') {
-      setSearchState({
-        ...searchState,
-        results: [],
-        showEmpty: false,
-      });
+      store.dispatch(
+        setSearchState({
+          ...searchState,
+          results: [],
+          showEmpty: false,
+        })
+      );
       return;
     }
     
@@ -133,32 +148,51 @@ function HomePage() {
       results = topApps.filter((topApp) => topApp.name.indexOf(trimmedText) !== -1);
     }
 
-    setSearchState({
-      ...searchState,
-      text: trimmedText,
-      results: results,
-      showEmpty: results.length === 0
-    });
+    store.dispatch(
+      setSearchState({
+        ...searchState,
+        text: trimmedText,
+        results: results,
+        showEmpty: results.length === 0
+      })
+    );
   }, 800);
 
   function handleSearchbarOnBlur(event, text) {
-    setSearchState({
-      ...searchState,
-      isActive: !!text
-    });
+    store.dispatch(
+      setSearchState({
+        ...searchState,
+        isActive: !!text
+      })
+    );
   }
 
-  function handleSearchbarOnCancel(event, text) {
-    setSearchState({
-      ...searchState,
-      text: '',
-      results: [],
-      showEmpty: false,
-    });
+  function handleSearchbarOnCancelWhenFocus(event, text) {
+    store.dispatch(
+      setSearchState({
+        ...searchState,
+        text: '',
+        results: [],
+        showEmpty: false,
+      })
+    );
+  }
+
+  function handleSearchbarOnCancelWhenBlur(event, text) {
+    store.dispatch(
+      setSearchState({
+        ...searchState,
+        text: '',
+        results: [],
+        showEmpty: false,
+        isActive: false
+      })
+    );
   }
 
   function handleAppWrapperClick(app) {
     if (app.id !== null) {
+      store.dispatch(setScrollTop());
       history.push(`/detail/${app.id}`);
     }
   }
@@ -179,17 +213,21 @@ function HomePage() {
       setTimeout(() => {
         let newTopAppsLimit = Math.min(topApps.length, topAppsState.limit + 10);
         if (newTopAppsLimit === topAppsState.limit) { // = no more results
-          setTopAppsState({
-            isLoading: false,
-            hasMore: false,
-            limit: topAppsState.limit
-          });
+          store.dispatch(
+            setTopAppsState({
+              isLoading: false,
+              hasMore: false,
+              limit: topAppsState.limit
+            })
+          );
         } else {
-          setTopAppsState({
-            isLoading: false,
-            hasMore: true,
-            limit: newTopAppsLimit
-          });
+          store.dispatch(
+            setTopAppsState({
+              isLoading: false,
+              hasMore: true,
+              limit: newTopAppsLimit
+            })
+          );
         }
       }, 800); // simulate loading delay via network
     }
@@ -202,21 +240,20 @@ function HomePage() {
           onFocus={handleSearchbarOnFocus}
           onTextChange={handleSearchbarOnTextChange}
           onBlur={handleSearchbarOnBlur}
-          onCancel={handleSearchbarOnCancel}
+          onCancelWhenFocus={handleSearchbarOnCancelWhenFocus}
+          onCancelWhenBlur={handleSearchbarOnCancelWhenBlur}
+          initialValue={searchState.text}
         ></Searchbar>
       </TopToolbar>
       
       <MainPanel>
-        {
-          searchState.isActive ?
-            <SearchAppListSection />
-          :
-            <div>
-              <RecommandAppListSection />
-              <TopAppListSection />
-            </div>
-        }
+        <RecommandAppListSection />
+        <TopAppListSection />
       </MainPanel>
+
+      <SearchPanel active={searchState.isActive}>
+        <SearchAppListSection />
+      </SearchPanel>
     </div>
   );
 
