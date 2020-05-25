@@ -67,6 +67,9 @@ class Model_ItuneApp {
         }
 
       } else if (json['trackName']) { // Format B: Lookup
+        if (json['trackId']) { // parse name from json
+          this.id = json['trackId'].toString();
+        }
 
         if (json['trackName']) { // parse name from json
           this.name = json['trackName'];
@@ -78,6 +81,10 @@ class Model_ItuneApp {
         
         if (json['description']) { // parse name from json
           this.description = json['description'];
+        }
+        
+        if (json['genres']) { // parse name from json
+          this.category = json['genres'].join(' ');
         }
 
         if (json['artworkUrl512']) {
@@ -98,7 +105,7 @@ class Model_ItuneApp {
         }
 
         if (json['averageUserRatingForCurrentVersion']) {
-          this.rating = json['averageUserRatingForCurrentVersion'];
+          this.rating = Math.round((json['averageUserRatingForCurrentVersion'] + Number.EPSILON) * 100) / 100;
         }
 
         if (json['userRatingCount']) {
