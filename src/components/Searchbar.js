@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import styled from 'styled-components';
 import InputBase from '@material-ui/core/InputBase';
+import IconButton from '@material-ui/core/IconButton';
 
 import SearchIcon from '@material-ui/icons/Search';
+import CancelIcon from '@material-ui/icons/Cancel';
 
 const SearchbarInputWrapper = styled.div`
   background-color: #E4E5E6;
@@ -37,29 +39,59 @@ const SearchbarInput = styled(InputBase)`
   }
 `;
 
-function Searchbar({ onChange, onFocus, onBlur, ...others }) {
+const SearchbarCancelButton = styled(IconButton)`
+  &.MuiIconButton-root {
+    position: absolute;
+    right: 4px;
+    padding: 0;
+    top: 0;
+    bottom: 0;
+  }
+`;
+
+function Searchbar({ onTextChange, onFocus, onBlur, onCancel, ...others }) {
   const [ isFocusing, setIsFocusing ] = useState(false);
-  const [ text, setText ] = useState(null);
+  const [ isCancelling, setIsCancelling ] = useState(false);
+  const [ text, setText ] = useState('');
+  const searchbarInput = useRef(null);
 
   function handleOnFocus(event) {
     setIsFocusing(true);
-    if (onFocus) {
-      onFocus(event);
+    if (isCancelling) { // do not callback when previous action is cancel
+      setIsCancelling(false);
+    } else if (onFocus) {
+      onFocus(event, text);
     }
   }
 
   function handleOnChange(event) {
     setText(event.target.value);
-    if (onChange) {
-      onChange(event);
+    if (onTextChange) {
+      onTextChange(event, event.target.value);
     }
   }
 
   function handleOnBlur(event) {
     setIsFocusing(false);
-    if (onBlur) {
-      onBlur(event);
+    if (isCancelling) { // do not callback when previous action is cancel
+      setIsCancelling(false);
+    } else if (onBlur) {
+      onBlur(event, text);
     }
+    setIsCancelling(false);
+  }
+
+  function handleCancel(event) {
+    setText(''); setIsCancelling(true);
+    if (onCancel) {
+      onCancel(event, '');
+    }
+    if (onTextChange) {
+      onTextChange(event, '');
+    }
+    setTimeout(() => {
+      searchbarInput.current.children[0].focus();
+    }, 10)
   }
 
   return (
@@ -76,7 +108,17 @@ function Searchbar({ onChange, onFocus, onBlur, ...others }) {
           onFocus={handleOnFocus}
           onChange={handleOnChange}
           onBlur={handleOnBlur}
+          value={text}
+          ref={searchbarInput}
         ></SearchbarInput>
+        {
+          text &&
+          <SearchbarCancelButton
+            onClick={handleCancel}
+          >
+            <CancelIcon></CancelIcon>
+          </SearchbarCancelButton>
+        }
       </SearchbarInputWrapper>
     </div>
   );

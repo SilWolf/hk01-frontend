@@ -1,14 +1,16 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useSelector } from 'react-redux';
+import { useDebouncedCallback } from 'use-debounce';
 import { addRecommandApps } from './actions/recommandApps.action';
 
 import store from './store';
 import { addTopApps } from './actions/topApps.action';
-import { setSearchText, setSearchResults, clearSearch } from './actions/search.action';
 
 import Model_ItuneApp from './models/ItuneApp.model';
 
 import ButtonBase from '@material-ui/core/ButtonBase'
+
+import FindInPageIcon from '@material-ui/icons/FindInPage';
 
 import './App.css';
 
@@ -22,9 +24,18 @@ import styled from 'styled-components';
 import axios from 'axios';
 
 const TopToolbar = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   padding: 5px 10px;
   background: #F8F8F9;
-  box-shadow: 0 2px 2px #E3E4E5
+  box-shadow: 0 2px 2px #E3E4E5;
+  z-index: 999;
+`;
+
+const MainPanel = styled.div`
+  padding-top: 50px;
 `;
 
 const RecommandAppListHeader = styled.div`
@@ -63,15 +74,54 @@ const TopAppWrapper = styled(ButtonBase)`
   }
 `;
 
+// const SearchAppListPanel = styled.div`
+//   display: none;
+//   position: fixed;
+//   background: #FFFFFF;
+//   width: 100vw;
+//   height: 100vh;
+//   top: 50px;
+//   bottom: 0;
+//   left: 0;
+//   right: 0;
+//   opacity: 0;
+//   transition: top 0.3s, opacity 0.3s;
+//   padding-top: 50px;
+//   z-index: 10;
+
+//   &.active {
+//     display: block;
+//     top: 0px;
+//     opacity: 1;
+//   }
+// `;
+
+const SearchNoResult = styled.div`
+  text-align: center;
+  color: #E4E5E6;
+  margin-top: 50px;
+
+  .MuiSvgIcon-root {
+    font-size: 4rem
+  }
+`;
+
 function App() {
   const recommandApps = useSelector(state => state.recommandApps);
   const topApps = useSelector(state => state.topApps);
-  const search = useSelector(state => state.search);
 
   const [topAppsState, setTopAppsState] = useState({
     isLoading: false,
     hasMore: false,
     limit: 0
+  });
+
+  const [searchState, setSearchState] = useState({
+    text: '',
+    isActive: false,
+    isLoading: false,
+    results: [],
+    showEmpty: false
   });
 
   const handleScroll = useCallback((event) => {
@@ -87,17 +137,59 @@ function App() {
     }
   }, [ topAppsState ]);
 
-  function handleSearchbarOnFocus(event) {
+  function handleSearchbarOnFocus(event, text) {
+    setSearchState({
+      ...searchState,
+      isActive: true
+    });
   }
+  
+  // function handleSearchbarOnTextChange(text) {
+  //   setSearchState({
+  //     ...searchState,
+  //     text: text,
+  //   });
+  //   debouncedSearchbarOnTextChange(text);
+  // }
 
-  function handleSearchbarOnChange(event) {
-    store.dispatch(setSearchText(event.target.value));
-  }
-
-  function handleSearchbarOnBlur(event) {
-    if (!search.text) { // if text is empty or null
-      store.dispatch(clearSearch());
+  const [ handleSearchbarOnTextChange ] = useDebouncedCallback((event, text) => {
+    if (text === '') {
+      setSearchState({
+        ...searchState,
+        results: [],
+        showEmpty: false,
+      });
+      return;
     }
+    
+    let trimmedText = text.trim();
+    let results = [];
+    if (trimmedText) {
+      results = topApps.filter((topApp) => topApp.name.indexOf(trimmedText) !== -1);
+    }
+
+    setSearchState({
+      ...searchState,
+      text: trimmedText,
+      results: results,
+      showEmpty: results.length === 0
+    });
+  }, 800);
+
+  function handleSearchbarOnBlur(event, text) {
+    setSearchState({
+      ...searchState,
+      isActive: !!text
+    });
+  }
+
+  function handleSearchbarOnCancel(event, text) {
+    setSearchState({
+      ...searchState,
+      text: '',
+      results: [],
+      showEmpty: false,
+    });
   }
 
   // on mount: load data from APIs
@@ -125,7 +217,7 @@ function App() {
       store.dispatch(addTopApps(topApps));
 
       setTopAppsState({
-        isLoading: false,
+        isLoading: true,
         hasMore: true,
         limit: 0
       });
@@ -141,20 +233,6 @@ function App() {
       window.removeEventListener('scroll', handleScroll)
     }
   }, [ handleScroll ]);
-
-  // on change: search.text
-  useEffect(() => {
-    if (!search.text) {
-      store.dispatch(setSearchResults(null));
-      return;
-    }
-    
-    let trimmedText = search.text.trim();
-    if (trimmedText) {
-      let results = topApps.filter((topApp) => topApp.name.indexOf(trimmedText) !== -1);
-      store.dispatch(setSearchResults(results));
-    }
-  }, [ topApps, search.text ])
 
   // on change: isLoadingMoreTopApps
   useEffect(() => {
@@ -183,11 +261,28 @@ function App() {
       <TopToolbar>
         <Searchbar
           onFocus={handleSearchbarOnFocus}
-          onChange={handleSearchbarOnChange}
+          onTextChange={handleSearchbarOnTextChange}
           onBlur={handleSearchbarOnBlur}
+          onCancel={handleSearchbarOnCancel}
         ></Searchbar>
       </TopToolbar>
+      
+      <MainPanel>
+        {
+          searchState.isActive ?
+            <SearchAppListSection />
+          :
+            <div>
+              <RecommandAppListSection />
+              <TopAppListSection />
+            </div>
+        }
+      </MainPanel>
+    </div>
+  );
 
+  function RecommandAppListSection() {
+    return <div>
       <RecommandAppListHeader>推介</RecommandAppListHeader>
       <RecommandAppList>
         {
@@ -205,34 +300,10 @@ function App() {
           )
         }
       </RecommandAppList>
-
-      {
-        search.results !== null ? renderSearchAppList() : renderTopAppList()
-      }
-
     </div>
-  );
-
-  function renderSearchAppList() {
-    return <TopAppList>
-      {
-        search.results.map((searchApp, index) => 
-          <TopAppWrapper
-            key={index}
-          >
-            <TopApp
-              title={searchApp.name}
-              caption={searchApp.category}
-              image={searchApp.image.url}
-              variant={ index % 2 === 0 ? 'rounded' : 'circle' }
-            ></TopApp>
-          </TopAppWrapper>
-        )
-      }
-    </TopAppList>
   }
 
-  function renderTopAppList() {
+  function TopAppListSection() {
     return <TopAppList>
       {
         topApps.slice(0, topAppsState.limit).map((topApp, index) => 
@@ -271,6 +342,34 @@ function App() {
               ></TopApp>
             </TopAppWrapper>
           </div>
+        )
+      }
+    </TopAppList>
+  }
+
+  function SearchAppListSection({ isActive, ...others }) {
+    if (searchState.showEmpty) {
+      return <SearchNoResult>
+        <div>
+          <FindInPageIcon></FindInPageIcon>
+        </div>
+        no result.
+      </SearchNoResult>
+    }
+
+    return <TopAppList>
+      {
+        searchState.results.map((searchApp, index) => 
+          <TopAppWrapper
+            key={index}
+          >
+            <TopApp
+              title={searchApp.name}
+              caption={searchApp.category}
+              image={searchApp.image.url}
+              variant={ index % 2 === 0 ? 'rounded' : 'circle' }
+            ></TopApp>
+          </TopAppWrapper>
         )
       }
     </TopAppList>
