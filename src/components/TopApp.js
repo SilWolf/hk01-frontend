@@ -73,7 +73,6 @@ function TopApp({ index, title, caption, image, variant, loading, ...others }) {
             loading ? (<Skeleton></Skeleton>) : (<span>{caption}</span>)
           }
         </TopAppCaption>
-        <TopAppRating>Rating</TopAppRating>
       </Grid>
     </Grid>
   );
