@@ -167,7 +167,7 @@ function HomePage() {
 
   // on change: isLoadingMoreTopApps
   useEffect(() => {
-    if (topAppsState.isLoading === true) {
+    if (topAppsState.isLoading === true || topAppsState.limit === 0) {
       setTimeout(() => {
         let newTopAppsLimit = Math.min(topApps.length, topAppsState.limit + 10);
         if (newTopAppsLimit === topAppsState.limit) { // = no more results

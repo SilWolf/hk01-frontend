@@ -39,7 +39,7 @@ function App() {
 
   return <Router>
     <Switch>
-      <Route path="/detail">
+      <Route path="/detail/:id">
         <DetailPage />
       </Route>
       <Route path="/">
