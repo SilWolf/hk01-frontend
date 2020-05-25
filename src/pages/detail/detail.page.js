@@ -1,24 +1,24 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { useDebouncedCallback } from 'use-debounce';
-import { addRecommandApps } from './actions/recommandApps.action';
+import { addRecommandApps } from '../../actions/recommandApps.action';
 
-import store from './store';
-import { addTopApps } from './actions/topApps.action';
+import store from '../../store';
+import { addTopApps } from '../../actions/topApps.action';
 
-import Model_ItuneApp from './models/ItuneApp.model';
+import Model_ItuneApp from '../../models/ItuneApp.model';
 
 import ButtonBase from '@material-ui/core/ButtonBase'
 
 import FindInPageIcon from '@material-ui/icons/FindInPage';
 
-import './App.css';
+import './detail.page.css';
 
 import {
   Searchbar,
   RecommandApp,
   TopApp
-} from './components';
+} from '../../components';
 
 import styled from 'styled-components';
 import axios from 'axios';
@@ -106,7 +106,7 @@ const SearchNoResult = styled.div`
   }
 `;
 
-function App() {
+function DetailPage() {
   const recommandApps = useSelector(state => state.recommandApps);
   const topApps = useSelector(state => state.topApps);
 
@@ -377,4 +377,4 @@ function App() {
 
 }
 
-export default App;
+export default DetailPage;

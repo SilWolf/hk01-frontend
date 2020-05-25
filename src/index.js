@@ -9,7 +9,9 @@ import {
 import { Provider } from 'react-redux';
 
 import './index.css';
-import App from './App';
+import HomePage from './pages/home';
+import DetailPage from './pages/detail';
+
 import store from './store';
 import * as serviceWorker from './serviceWorker';
 
@@ -18,8 +20,11 @@ ReactDOM.render(
     <Provider store={store}>
       <Router>
         <Switch>
+          <Route path="/detail">
+            <DetailPage />
+          </Route>
           <Route path="/">
-            <App />
+            <HomePage />
           </Route>
         </Switch>
       </Router>
