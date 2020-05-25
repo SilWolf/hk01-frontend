@@ -1,6 +1,7 @@
 {
   "name": "hk01-frontend",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "homepage": "https://silwolf.io/hk01-codetest/frontend/",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.9.14",
