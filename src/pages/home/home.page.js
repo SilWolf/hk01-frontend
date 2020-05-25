@@ -1,12 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { useDebouncedCallback } from 'use-debounce';
-import { addRecommandApps } from '../../actions/recommandApps.action';
-
-import store from '../../store';
-import { addTopApps } from '../../actions/topApps.action';
-
-import Model_ItuneApp from '../../models/ItuneApp.model';
 
 import ButtonBase from '@material-ui/core/ButtonBase'
 
@@ -21,7 +15,6 @@ import {
 } from '../../components';
 
 import styled from 'styled-components';
-import axios from 'axios';
 
 const TopToolbar = styled.div`
   position: fixed;
@@ -74,28 +67,6 @@ const TopAppWrapper = styled(ButtonBase)`
   }
 `;
 
-// const SearchAppListPanel = styled.div`
-//   display: none;
-//   position: fixed;
-//   background: #FFFFFF;
-//   width: 100vw;
-//   height: 100vh;
-//   top: 50px;
-//   bottom: 0;
-//   left: 0;
-//   right: 0;
-//   opacity: 0;
-//   transition: top 0.3s, opacity 0.3s;
-//   padding-top: 50px;
-//   z-index: 10;
-
-//   &.active {
-//     display: block;
-//     top: 0px;
-//     opacity: 1;
-//   }
-// `;
-
 const SearchNoResult = styled.div`
   text-align: center;
   color: #E4E5E6;
@@ -143,14 +114,6 @@ function HomePage() {
       isActive: true
     });
   }
-  
-  // function handleSearchbarOnTextChange(text) {
-  //   setSearchState({
-  //     ...searchState,
-  //     text: text,
-  //   });
-  //   debouncedSearchbarOnTextChange(text);
-  // }
 
   const [ handleSearchbarOnTextChange ] = useDebouncedCallback((event, text) => {
     if (text === '') {
@@ -191,38 +154,6 @@ function HomePage() {
       showEmpty: false,
     });
   }
-
-  // on mount: load data from APIs
-  useEffect(() => {
-    setTopAppsState({
-      isLoading: true,
-      hasMore: false,
-      limit: 0
-    });
-    // Get list of top apps and store it
-    axios.get('https://itunes.apple.com/hk/rss/topgrossingapplications/limit=10/json').then((response) => {
-      let entries = response.data.feed.entry;
-      let recommandApps = entries.map((json) => {
-        return new Model_ItuneApp().fromJson(json);
-      });
-      store.dispatch(addRecommandApps(recommandApps));
-    });
-
-    // Get list of top app and store it
-    axios.get('https://itunes.apple.com/hk/rss/topfreeapplications/limit=100/json').then((response) => {
-      let entries = response.data.feed.entry;
-      let topApps = entries.map((json) => {
-        return new Model_ItuneApp().fromJson(json);
-      });
-      store.dispatch(addTopApps(topApps));
-
-      setTopAppsState({
-        isLoading: true,
-        hasMore: true,
-        limit: 0
-      });
-    });
-  }, []);
 
   // on mount: bind scroll callback
   // on unmount: unbind scroll callback

@@ -1,16 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-} from "react-router-dom";
 
 import { Provider } from 'react-redux';
 
 import './index.css';
-import HomePage from './pages/home';
-import DetailPage from './pages/detail';
+
+import App from './App';
 
 import store from './store';
 import * as serviceWorker from './serviceWorker';
@@ -18,16 +13,7 @@ import * as serviceWorker from './serviceWorker';
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <Router>
-        <Switch>
-          <Route path="/detail">
-            <DetailPage />
-          </Route>
-          <Route path="/">
-            <HomePage />
-          </Route>
-        </Switch>
-      </Router>
+      <App />
     </Provider>
   </React.StrictMode>,
   document.getElementById('root')
