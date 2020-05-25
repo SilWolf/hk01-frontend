@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import { useDebouncedCallback } from 'use-debounce';
 
 import ButtonBase from '@material-ui/core/ButtonBase'
@@ -78,6 +79,7 @@ const SearchNoResult = styled.div`
 `;
 
 function HomePage() {
+  const history = useHistory();
   const recommandApps = useSelector(state => state.recommandApps);
   const topApps = useSelector(state => state.topApps);
 
@@ -155,6 +157,12 @@ function HomePage() {
     });
   }
 
+  function handleAppWrapperClick(app) {
+    if (app.id !== null) {
+      history.push(`/detail/${app.id}`);
+    }
+  }
+
   // on mount: bind scroll callback
   // on unmount: unbind scroll callback
   useEffect(() => {
@@ -220,6 +228,9 @@ function HomePage() {
           recommandApps.map((recommandApp, index) => 
             <RecommandAppWrapper
               key={index}
+              onClick={() => {
+                handleAppWrapperClick(recommandApp);
+              }}
             >
               <RecommandApp
                 index={index+1}
@@ -240,6 +251,9 @@ function HomePage() {
         topApps.slice(0, topAppsState.limit).map((topApp, index) => 
           <TopAppWrapper
             key={index}
+            onClick={() => {
+              handleAppWrapperClick(topApp);
+            }}
           >
             <TopApp
               index={index+1}
@@ -293,6 +307,9 @@ function HomePage() {
         searchState.results.map((searchApp, index) => 
           <TopAppWrapper
             key={index}
+            onClick={() => {
+              handleAppWrapperClick(searchApp);
+            }}
           >
             <TopApp
               title={searchApp.name}
