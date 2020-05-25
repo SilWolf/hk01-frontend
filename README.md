@@ -24,6 +24,21 @@ App detail page with description and ratings. Can be accessed via clicking on an
 ### Known issue
 * User can still scroll the page when search panel is active.
 
+### Run on local
+```
+# Clone it
+git clone https://github.com/SilWolf/hk01-frontend.git
+cd hk01-frontend
+npm install
+npm run start
+
+# to do test
+npm run test
+
+# to build
+npm run build
+```
+
 ### Technique & Used library
 * React
   * Redux
