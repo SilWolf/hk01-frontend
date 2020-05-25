@@ -14,18 +14,21 @@ import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import styled from 'styled-components';
 import axios from 'axios';
 
-import FakeAppJson from '../../assets/fake_app';
-
 const TopToolbar = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   padding: 5px 10px;
   background: #F8F8F9;
   box-shadow: 0 2px 2px #E3E4E5;
+  z-index: 999;
 `;
 
 const BackButton = styled(Button)``;
 
 const DetailPanel = styled.div`
-  padding: 10px;
+  padding: 60px 10px 10px 10px;
 `;
 
 const DetailAvatar = styled(Avatar)`
@@ -62,11 +65,20 @@ const DetailCaption = styled.div`
   margin-bottom: 0.2em;
 `;
 
+const ErrorMessage = styled.div`
+  padding: 10px;
+  background: #ffe2e0;
+  color: #ff4538;
+  border-radius: 4px;
+  margin-bottom: 10px;
+`
+
 function DetailPage() {
   const history = useHistory();
   const { id } = useParams();
   const [isLoading, setIsLoading] = useState(true);
   const [app, setApp] = useState(new Model_ItuneApp());
+  const [errorMessage, setErrorMessage] = useState(null);
 
   // on mount: load data from APIs
   useEffect(() => {
@@ -74,23 +86,27 @@ function DetailPage() {
       setIsLoading(true);
   
       // Get app detail from API
-      // axios.get(
-      //   'https://itunes.apple.com/hk/lookup',
-      //   {
-      //     params: {
-      //       id: id
-      //     }
-      //   }
-      // ).then((response) => {
-      //   let results = response.data.results;
-      //   if (results.length === 1) {
-      //     setApp(new Model_ItuneApp().fromJson(results[0]));
-      //   }
-      // }).finally(() => {
-      //   setIsLoading(false);
-      // });
-      setApp(new Model_ItuneApp().fromJson(FakeAppJson));
-      setIsLoading(false);
+      axios.get(
+        'https://itunes.apple.com/hk/lookup',
+        {
+          params: {
+            id: id
+          }
+        }
+      ).then((response) => {
+        let results = response.data.results;
+        if (results.length === 1) {
+          setApp(new Model_ItuneApp().fromJson(results[0]));
+        }
+      })
+      .catch(function (error) {
+        // handle error
+        console.error(error);
+        setErrorMessage(error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
     }
   }, [ id ]);
 
@@ -108,6 +124,13 @@ function DetailPage() {
       </TopToolbar>
       
       <DetailPanel>
+        
+        {
+          errorMessage && (
+            <ErrorMessage>Unable to load data. Please try again later.</ErrorMessage>
+          )
+        }
+        
         {
           isLoading && (
             <div>

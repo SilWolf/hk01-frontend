@@ -46,10 +46,6 @@ const TopAppCaption = styled.div`
   margin-bottom: 0.2em;
 `;
 
-const TopAppRating = styled.div`
-  text-align: left;
-`;
-
 function TopApp({ index, title, caption, image, variant, loading, ...others }) {
   return (
     <Grid container alignItems="center">
